@@ -1,9 +1,9 @@
 import subprocess
 import sys
-import os
 
 c_source_file = "..\\C\\"
 output_executable = "main"
+data_folder = "..\\..\\data\\teste.txt"
 
 def compileProgram():
     try:
@@ -15,7 +15,7 @@ def compileProgram():
 
 def runProgram():
     try:
-        subprocess.run(f"./{output_executable}")
+        subprocess.run(f"./{output_executable} {data_folder}")
     except FileNotFoundError:
         print(f"Executável '{output_executable}.exe' não encontrado.")
 

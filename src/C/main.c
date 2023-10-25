@@ -82,7 +82,6 @@ int main(int argc, char *argv[]) {
   while (1) {
     // le caractere por caractere do buffer
     char character = get_next_char(file, buffer);
-    printf("%c\n", character);
 
     if (checkIfLetter(character)) {
       // printf("%c eh letra", character);
