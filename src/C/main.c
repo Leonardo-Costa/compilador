@@ -16,43 +16,17 @@ int main(int argc, char *argv[])
     return 1;
   }
 
-  Buffer *buffer = allocate_buffer(256);
-  if (buffer == NULL)
-  {
-    printf("Erro ao alocar o buffer.\n");
-    fclose(file);
-    return 1;
-  }
-
-  buffer->prox_char = 0;
-  char character;
-
-  LexemeInfo lexemeInfo;
-  LexemeInfo *lexemeInfoPtr = &lexemeInfo;
-
-  char lexeme[65] = "";
-  int lexemeIndex = 0;
-
   while (1)
   {
-    // le caractere por caractere do buffer
-    char character = get_next_char(file, buffer);
+    LexemeInfo lexemeInfo = lexer(file);
 
-    char *lexeme = lexer(character);
-
-    if (strcmp(lexeme, "NO_LEXEME_FOUND") != 0)
+    if (strcmp(lexemeInfo.lexeme, "NO_LEXEME_FOUND") != 0)
     {
-      printf("Lexeme: %s\n", lexeme);
-      free(lexeme); // Make sure to free the dynamically allocated memory.
+      printf("Line: %d, Lexeme: %s, Token: %d\n", lexemeInfo.line, lexemeInfo.lexeme, lexemeInfo.token);
     }
-    // para o loop de leitura se o caractere lido for de fim de arquivo
-    if (character == EOF)
+    if (strcmp(lexemeInfo.lexeme, "EOF") == 0)
     {
       break;
-    }
-    if (character == '\n')
-    {
-      buffer->linha++;
     }
   }
 

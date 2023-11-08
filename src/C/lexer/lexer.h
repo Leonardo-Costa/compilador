@@ -5,6 +5,7 @@
 #include <stdlib.h>
 #include <stdbool.h>
 #include <string.h>
+#include <windows.h>
 
 #define NUM_STATES 26
 #define ALPHABET_SIZE 20
@@ -18,6 +19,19 @@ typedef struct TabularAutomaton {
     char last_character;
     char lexeme[256];
 } TabularAutomaton;
+
+
+typedef struct {
+  int prox_char;
+  int linha;
+  char data[256];
+} Buffer;
+
+typedef struct {
+    char* lexeme;
+    int line;
+    int token;
+} LexemeInfo;
 
 enum States {
     q0 = -1, q1 = 0, q2, q3, q4, q5, q6, q7, q8, q9, q10, q11, q12, q13, q14, q15, q16, q17, q18, q19, q20, q21, q22, q23, q24, q25, q26
@@ -35,7 +49,12 @@ bool isNumber(char character);
 char* joinCharAndString(const char* str, char character);
 bool processInput(TabularAutomaton* automaton, const char character);
 void setTransitions(TabularAutomaton* automaton);
-void configureAutomaton(TabularAutomaton* automaton);
-char* lexer(char charactere);
+void configureAutomaton(TabularAutomaton *automaton, Buffer **buffer, FILE *file);
+char get_next_char(FILE *file, Buffer *buffer);
+LexemeInfo lexer(FILE *file);
+Buffer *allocate_buffer(int size);
+void deallocate_buffer(Buffer *buffer);
+void fill_buffer(FILE *file, Buffer *buffer);
+
 
 #endif /* LEXER_H */

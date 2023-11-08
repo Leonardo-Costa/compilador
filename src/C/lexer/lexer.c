@@ -336,38 +336,104 @@ void setTransitions(TabularAutomaton *automaton)
     setTransition(automaton, q26, '.', q2, true);
 }
 
-void configureAutomaton(TabularAutomaton *automaton)
+char get_next_char(FILE *file, Buffer *buffer) {
+  if (buffer->data[buffer->prox_char] == '\0') {
+    if (fgets(buffer->data, 256, file) == NULL) {
+      return EOF;
+    }
+    buffer->prox_char = 0;
+  }
+
+  char current_char = buffer->data[buffer->prox_char++];
+  
+  if (current_char == '\0' || current_char == '\n') {
+    memset(buffer->data, '\0', 256);
+    buffer->prox_char = 0;
+  }
+
+  return current_char;
+}
+
+Buffer *allocate_buffer(int size) {
+  Buffer *buffer = (Buffer *)malloc(sizeof(Buffer));
+  if (buffer == NULL) {
+    return NULL;
+  }
+
+  buffer->prox_char = 0;
+  buffer->linha = 1;
+  for (int i=0; i < size; i++) {
+    buffer->data[i] = '\0';
+  }
+  return buffer;
+}
+
+void deallocate_buffer(Buffer *buffer) {
+  if (buffer != NULL) {
+    free(buffer);
+  }
+}
+
+void configureAutomaton(TabularAutomaton *automaton, Buffer **buffer, FILE *file)
 {
-    printf("configureAutomaton\n");
+    *buffer = allocate_buffer(256);
+    if (*buffer == NULL)
+    {
+        printf("Erro ao alocar o buffer.\n");
+        fclose(file);
+        return;
+    }
+    (*buffer)->prox_char = 0;
     initializeAutomaton(automaton);
     setTransitions(automaton);
     setFinalState(automaton, q2);
 }
 
-char *lexer(char character)
+LexemeInfo lexer(FILE *file)
 {
     static TabularAutomaton automaton;
     static int is_initialized = 0;
+    bool lexemeFound;
+    LexemeInfo lexemeInfo;
+    Buffer *buffer;
 
     if (!is_initialized)
-    {
-        configureAutomaton(&automaton);
-        is_initialized = 1;
-    }
+{
+    configureAutomaton(&automaton, &buffer, file); // Pass the address of buffer
+    printf("automato configurado\n");
+    is_initialized = 1;
+}
 
-    bool lexemeFound = processInput(&automaton, character);
-
-    if (lexemeFound)
+    while (!lexemeFound)
     {
-        char *result = (char *)malloc(strlen(automaton.lexeme) + 1);
-        if (result)
+        Sleep(1);
+        char character = get_next_char(file, buffer);
+
+        if (character == EOF)
         {
-            strcpy(result, automaton.lexeme);
+            lexemeInfo.lexeme = "EOF";
+            lexemeInfo.line = buffer->linha;
+            lexemeInfo.token = 1;
+            return lexemeInfo;
         }
-        return result;
-    }
-    else
-    {
-        return "NO_LEXEME_FOUND"; // This is the flag indicating no lexeme was found.
+        if (character == '\n')
+        {
+            buffer->linha++;
+        }
+
+        bool lexemeFound = processInput(&automaton, character);
+
+        if (lexemeFound)
+        {
+            char *result = (char *)malloc(strlen(automaton.lexeme) + 1);
+            if (result)
+            {
+                strcpy(result, automaton.lexeme);
+            }
+            lexemeInfo.lexeme = result;
+            lexemeInfo.line = buffer->linha;
+            lexemeInfo.token = 1;
+            return lexemeInfo;
+        }
     }
 }
