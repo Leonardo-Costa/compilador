@@ -11,6 +11,9 @@ Buffer *allocate_buffer(int size) {
 
   buffer->prox_char = 0;
   buffer->linha = 1;
+  for (int i=0; i < size; i++) {
+    buffer->data[i] = '\0';
+  }
   return buffer;
 }
 

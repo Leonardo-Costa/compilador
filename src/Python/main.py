@@ -3,11 +3,11 @@ import sys
 
 c_source_file = "..\\C\\"
 output_executable = "main"
-data_folder = "..\\..\\data\\teste.txt"
+data_folder = "..\\..\\data\\teste.c"
 
 def compileProgram():
     try:
-        compile_command = f"gcc {c_source_file}main.c {c_source_file}funcs.c -o {output_executable}.exe"
+        compile_command = f"gcc {c_source_file}main.c {c_source_file}funcs.c {c_source_file}lexer/lexer.c -o {output_executable}.exe"
         subprocess.run(compile_command, shell=True, check=True)
         print(f"Compilado com sucesso. Executável '{output_executable}.exe' criado.")
     except subprocess.CalledProcessError:
@@ -20,9 +20,6 @@ def runProgram():
         print(f"Executável '{output_executable}.exe' não encontrado.")
 
 if __name__ == "__main__":
-    if len(sys.argv) < 2:
-        sys.exit(1)
-
     compileProgram()
 
     if "-r" in sys.argv:
