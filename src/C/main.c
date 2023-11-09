@@ -22,7 +22,8 @@ int main(int argc, char *argv[])
 
     if (strcmp(lexemeInfo.lexeme, "NO_LEXEME_FOUND") != 0)
     {
-      printf("Line: %d, Lexeme: %s, Token: %d\n", lexemeInfo.line, lexemeInfo.lexeme, lexemeInfo.token);
+      char *tokenName = getTokenName(lexemeInfo.token);
+      printf("Line: %d, Lexeme: %s, Token: %s\n", lexemeInfo.line, lexemeInfo.lexeme, tokenName ? tokenName : "NULL");
     }
     if (strcmp(lexemeInfo.lexeme, "EOF") == 0)
     {

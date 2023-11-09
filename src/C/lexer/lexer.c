@@ -15,6 +15,70 @@ void initializeAutomaton(TabularAutomaton *automaton)
     }
 }
 
+TokenTypeCMinus getTokenTypeFromIndex(int index)
+{
+    if (index >= 0 && index < EOF_TOKEN)
+    {
+        return (TokenTypeCMinus)index;
+    }
+    else
+    {
+        return EOF_TOKEN;
+    }
+}
+
+char *getTokenName(int token)
+{
+    static char *tokenNames[] = {
+        "NA",
+        "EOF",
+        "ID",
+        "NUM",
+        "LT",
+        "LTE",
+        "GT",
+        "GTE",
+        "ATTR",
+        "EQ",
+        "NA3",
+        "NE",
+        "SUM",
+        "MULT",
+        "COMMENT_END",
+        "DIV",
+        "COMMENT_START",
+        "SUB",
+        "OPEN_PAR",
+        "CLOSE_PAR",
+        "OPEN_CUR",
+        "CLOSE_CUR",
+        "OPEN_BRA",
+        "CLOSE_BRA",
+        "SEMICOLON",
+        "COMMA"
+    };
+
+    char *tokenName;
+
+    if (token >= 0 && token < EOF_TOKEN)
+    {
+        tokenName = tokenNames[(int)token];
+    }
+    else
+    {
+        tokenName = "UNKNOWN_TOKEN";
+    }
+
+    // Dynamically allocate memory and copy the string
+    char *dynamicTokenName = malloc(strlen(tokenName) + 1); // +1 for the null terminator
+    if (dynamicTokenName != NULL)
+    {
+        strcpy(dynamicTokenName, tokenName);
+    }
+
+    return dynamicTokenName;
+}
+
 int returnCharIndex(char character)
 {
     if (character == 'l')
@@ -190,40 +254,47 @@ char *joinCharAndString(const char *str, char character)
     return result;
 }
 
-bool processInput(TabularAutomaton *automaton, const char character)
+char getLocalCharacter(char character)
 {
-    char local_character;
-
-    automaton->last_character = character;
     if (isLetter(character))
     {
-        local_character = 'l';
+        return 'l';
     }
     else if (isNumber(character))
     {
-        local_character = 'n';
+        return 'n';
     }
     else
     {
-        local_character = character;
+        return character;
     }
+}
 
+bool processInput(TabularAutomaton *automaton, const char character)
+{
+    automaton->last_character = character;
+    char local_character = getLocalCharacter(character);
     int char_index = returnCharIndex(local_character);
-    // printf("character: %c, char_index: %d, local_char: %c\n", character, char_index, local_character);
 
     if (char_index >= 0 && char_index < ALPHABET_SIZE)
     {
-        automaton->current_state = automaton->transition_table[automaton->current_state][char_index];
+        int next_state = automaton->transition_table[automaton->current_state][char_index];
+        if (next_state != -1)
+        {
+            automaton->prior_state = automaton->current_state;
+            automaton->current_state = next_state;
+        }
+
         if (isAcceptingState(automaton))
         {
             strncpy(automaton->lexeme, automaton->read_string, strlen(automaton->read_string) + 1);
             automaton->lexeme[strlen(automaton->read_string)] = '\0';
             clearReadString(automaton);
+            int tokenType = automaton->prior_state;
             automaton->current_state = automaton->initial_state;
-            processInput(automaton, automaton->last_character);
-            return true;
+            return tokenType;
         }
-        else if (automaton->current_state == -1)
+        else if (next_state == -1)
         {
             printf("Error, character: %c\n", character);
             return false;
@@ -232,7 +303,12 @@ bool processInput(TabularAutomaton *automaton, const char character)
         {
             if (character != ' ' && character != '\n')
             {
-                strcpy(automaton->read_string, joinCharAndString(automaton->read_string, character));
+                char *new_read_string = joinCharAndString(automaton->read_string, character);
+                if (new_read_string)
+                {
+                    strcpy(automaton->read_string, new_read_string);
+                    free(new_read_string);
+                }
             }
         }
     }
@@ -336,42 +412,50 @@ void setTransitions(TabularAutomaton *automaton)
     setTransition(automaton, q26, '.', q2, true);
 }
 
-char get_next_char(FILE *file, Buffer *buffer) {
-  if (buffer->data[buffer->prox_char] == '\0') {
-    if (fgets(buffer->data, 256, file) == NULL) {
-      return EOF;
+char get_next_char(FILE *file, Buffer *buffer)
+{
+    if (buffer->data[buffer->prox_char] == '\0')
+    {
+        if (fgets(buffer->data, 256, file) == NULL)
+        {
+            return EOF;
+        }
+        buffer->prox_char = 0;
     }
-    buffer->prox_char = 0;
-  }
+    char current_char = buffer->data[buffer->prox_char++];
 
-  char current_char = buffer->data[buffer->prox_char++];
-  
-  if (current_char == '\0' || current_char == '\n') {
-    memset(buffer->data, '\0', 256);
-    buffer->prox_char = 0;
-  }
+    if (current_char == '\0' || current_char == '\n')
+    {
+        memset(buffer->data, '\0', 256);
+        buffer->prox_char = 0;
+    }
 
-  return current_char;
+    return current_char;
 }
 
-Buffer *allocate_buffer(int size) {
-  Buffer *buffer = (Buffer *)malloc(sizeof(Buffer));
-  if (buffer == NULL) {
-    return NULL;
-  }
+Buffer *allocate_buffer(int size)
+{
+    Buffer *buffer = (Buffer *)malloc(sizeof(Buffer));
+    if (buffer == NULL)
+    {
+        return NULL;
+    }
 
-  buffer->prox_char = 0;
-  buffer->linha = 1;
-  for (int i=0; i < size; i++) {
-    buffer->data[i] = '\0';
-  }
-  return buffer;
+    buffer->prox_char = 0;
+    buffer->linha = 1;
+    for (int i = 0; i < size; i++)
+    {
+        buffer->data[i] = '\0';
+    }
+    return buffer;
 }
 
-void deallocate_buffer(Buffer *buffer) {
-  if (buffer != NULL) {
-    free(buffer);
-  }
+void deallocate_buffer(Buffer *buffer)
+{
+    if (buffer != NULL)
+    {
+        free(buffer);
+    }
 }
 
 void configureAutomaton(TabularAutomaton *automaton, Buffer **buffer, FILE *file)
@@ -398,15 +482,13 @@ LexemeInfo lexer(FILE *file)
     Buffer *buffer;
 
     if (!is_initialized)
-{
-    configureAutomaton(&automaton, &buffer, file); // Pass the address of buffer
-    printf("automato configurado\n");
-    is_initialized = 1;
-}
+    {
+        configureAutomaton(&automaton, &buffer, file); // Pass the address of buffer
+        is_initialized = 1;
+    }
 
     while (!lexemeFound)
     {
-        Sleep(1);
         char character = get_next_char(file, buffer);
 
         if (character == EOF)
@@ -432,7 +514,7 @@ LexemeInfo lexer(FILE *file)
             }
             lexemeInfo.lexeme = result;
             lexemeInfo.line = buffer->linha;
-            lexemeInfo.token = 1;
+            lexemeInfo.token = getTokenTypeFromIndex(automaton.prior_state);
             return lexemeInfo;
         }
     }
