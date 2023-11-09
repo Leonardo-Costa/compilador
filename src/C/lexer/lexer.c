@@ -522,6 +522,7 @@ LexemeInfo lexer(FILE *file)
     while (!lexemeFound)
     {
         char character = get_next_char(file, buffer);
+        bool newLine = false;
 
         if (character == EOF)
         {
@@ -533,6 +534,7 @@ LexemeInfo lexer(FILE *file)
         if (character == '\n')
         {
             buffer->linha++;
+            newLine = true;
         }
 
         bool lexemeFound = processInput(&automaton, character, true);
@@ -545,7 +547,11 @@ LexemeInfo lexer(FILE *file)
                 strcpy(result, automaton.lexeme);
             }
             lexemeInfo.lexeme = result;
-            lexemeInfo.line = buffer->linha;
+            if(newLine) {
+                lexemeInfo.line = buffer->linha -1;
+            } else {
+                lexemeInfo.line = buffer->linha;
+            }
             if (automaton.prior_state == 2)
             {
                 if(checkIfKeyword(lexemeInfo.lexeme) == -1) {

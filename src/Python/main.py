@@ -1,26 +1,21 @@
-import subprocess
 import sys
+import os
 
-c_source_file = "..\\C\\"
-output_executable = "main"
-data_folder = "..\\..\\data\\teste.c"
+from compile import compileProgram, runProgram
+from funcs import listFiles
 
-def compileProgram():
-    try:
-        compile_command = f"gcc {c_source_file}main.c {c_source_file}funcs.c {c_source_file}lexer/lexer.c -o {output_executable}.exe"
-        subprocess.run(compile_command, shell=True, check=True)
-        print(f"Compilado com sucesso. Executável '{output_executable}.exe' criado.")
-    except subprocess.CalledProcessError:
-        print("Erro de compilação falhou.")
-
-def runProgram():
-    try:
-        subprocess.run(f"./{output_executable} {data_folder}")
-    except FileNotFoundError:
-        print(f"Executável '{output_executable}.exe' não encontrado.")
+RED = '\033[31m'
+GREEN = '\033[32m'
+YELLOW = '\033[33m'
+BLUE = '\033[34m'
+MAGENTA = '\033[35m'
+CYAN = '\033[36m'
+RESET = '\033[0m'
+inputRoot = "..\\..\\data\\lexer\\input\\"
 
 if __name__ == "__main__":
     compileProgram()
 
     if "-r" in sys.argv:
-        runProgram()
+        result = runProgram()
+        print(result)
