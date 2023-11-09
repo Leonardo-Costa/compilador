@@ -115,7 +115,7 @@ int isLetter(char character);
 bool isStandartSpecialCharacter(char character);
 bool isNumber(char character);
 char *joinCharAndString(const char *str, char character);
-bool processInput(TabularAutomaton *automaton, const char character);
+bool processInput(TabularAutomaton *automaton, const char character, bool keepState);
 void setTransitions(TabularAutomaton *automaton);
 void configureAutomaton(TabularAutomaton *automaton, Buffer **buffer, FILE *file);
 char get_next_char(FILE *file, Buffer *buffer);

@@ -21,17 +21,17 @@ char *keywords[7] = {
     "int",
     "return",
     "void",
-    "while"
-};
+    "while"};
 
 int keywords_index[6] = {
-    25, 26, 27, 28, 29, 30
-};
+    25, 26, 27, 28, 29, 30};
 
-int checkIfKeyword(char* lexeme)
+int checkIfKeyword(char *lexeme)
 {
-    for (int i=0; i < 6; i++) {
-        if (strcmp(lexeme, keywords[i]) == 0) {
+    for (int i = 0; i < 6; i++)
+    {
+        if (strcmp(lexeme, keywords[i]) == 0)
+        {
             return keywords_index[i];
         }
     };
@@ -84,8 +84,7 @@ char *getTokenName(int token)
         "KW_RETURN",
         "KW_VOID",
         "KW_WHILE",
-        "COMMA"
-    };
+        "COMMA"};
 
     char *tokenName;
 
@@ -299,7 +298,7 @@ char getLocalCharacter(char character)
     }
 }
 
-bool processInput(TabularAutomaton *automaton, const char character)
+bool processInput(TabularAutomaton *automaton, const char character, bool keepState)
 {
     automaton->last_character = character;
     char local_character = getLocalCharacter(character);
@@ -310,7 +309,10 @@ bool processInput(TabularAutomaton *automaton, const char character)
         int next_state = automaton->transition_table[automaton->current_state][char_index];
         if (next_state != -1)
         {
-            automaton->prior_state = automaton->current_state;
+            if (keepState)
+            {
+                automaton->prior_state = automaton->current_state;
+            }
             automaton->current_state = next_state;
         }
 
@@ -321,6 +323,7 @@ bool processInput(TabularAutomaton *automaton, const char character)
             clearReadString(automaton);
             int tokenType = automaton->prior_state;
             automaton->current_state = automaton->initial_state;
+            processInput(automaton, automaton->last_character, false);
             return tokenType;
         }
         else if (next_state == -1)
@@ -532,7 +535,7 @@ LexemeInfo lexer(FILE *file)
             buffer->linha++;
         }
 
-        bool lexemeFound = processInput(&automaton, character);
+        bool lexemeFound = processInput(&automaton, character, true);
 
         if (lexemeFound)
         {
@@ -543,15 +546,15 @@ LexemeInfo lexer(FILE *file)
             }
             lexemeInfo.lexeme = result;
             lexemeInfo.line = buffer->linha;
-            // if (automaton.prior_state == 2)
-            // {
-            //     if(checkIfKeyword(lexemeInfo.lexeme) == -1) {
-            //         lexemeInfo.token = 2;
-            //     } else {
-            //         lexemeInfo.token = checkIfKeyword(lexemeInfo.lexeme);
-            //     }
-            //     return lexemeInfo;
-            // }
+            if (automaton.prior_state == 2)
+            {
+                if(checkIfKeyword(lexemeInfo.lexeme) == -1) {
+                    lexemeInfo.token = 2;
+                } else {
+                    lexemeInfo.token = checkIfKeyword(lexemeInfo.lexeme);
+                }
+                return lexemeInfo;
+            }
             lexemeInfo.token = getTokenTypeFromIndex(automaton.prior_state);
             return lexemeInfo;
         }
