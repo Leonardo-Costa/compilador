@@ -15,6 +15,29 @@ void initializeAutomaton(TabularAutomaton *automaton)
     }
 }
 
+char *keywords[7] = {
+    "else",
+    "if",
+    "int",
+    "return",
+    "void",
+    "while"
+};
+
+int keywords_index[6] = {
+    25, 26, 27, 28, 29, 30
+};
+
+int checkIfKeyword(char* lexeme)
+{
+    for (int i=0; i < 6; i++) {
+        if (strcmp(lexeme, keywords[i]) == 0) {
+            return keywords_index[i];
+        }
+    };
+    return -1;
+}
+
 TokenTypeCMinus getTokenTypeFromIndex(int index)
 {
     if (index >= 0 && index < EOF_TOKEN)
@@ -55,6 +78,12 @@ char *getTokenName(int token)
         "OPEN_BRA",
         "CLOSE_BRA",
         "SEMICOLON",
+        "KW_ELSE",
+        "KW_IF",
+        "KW_INT",
+        "KW_RETURN",
+        "KW_VOID",
+        "KW_WHILE",
         "COMMA"
     };
 
@@ -514,6 +543,15 @@ LexemeInfo lexer(FILE *file)
             }
             lexemeInfo.lexeme = result;
             lexemeInfo.line = buffer->linha;
+            // if (automaton.prior_state == 2)
+            // {
+            //     if(checkIfKeyword(lexemeInfo.lexeme) == -1) {
+            //         lexemeInfo.token = 2;
+            //     } else {
+            //         lexemeInfo.token = checkIfKeyword(lexemeInfo.lexeme);
+            //     }
+            //     return lexemeInfo;
+            // }
             lexemeInfo.token = getTokenTypeFromIndex(automaton.prior_state);
             return lexemeInfo;
         }

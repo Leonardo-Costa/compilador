@@ -58,6 +58,12 @@ typedef enum
     CLOSE_BRA,
     SEMICOLON,
     COMMA,
+    KW_ELSE,
+    KW_IF,
+    KW_INT,
+    KW_RETURN,
+    KW_VOID,
+    KW_WHILE,
     EOF_TOKEN
 } TokenTypeCMinus;
 
