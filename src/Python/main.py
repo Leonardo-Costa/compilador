@@ -3,6 +3,7 @@ import os
 
 from compile import compileProgram, runProgram
 from funcs import listFiles
+from unit_tests import runBatch
 
 RED = '\033[31m'
 GREEN = '\033[32m'
@@ -19,3 +20,5 @@ if __name__ == "__main__":
     if "-r" in sys.argv:
         result = runProgram()
         print(result)
+    elif "-b" in sys.argv:
+        runBatch()

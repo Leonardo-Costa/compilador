@@ -39,7 +39,7 @@ def compareOutput(expectedOutput, givenOutput, filePath):
 
 
 def unitTest(filePath, givenOutputString):
-    print(f"{BLUE}COMPARANDO COM O ARQUIVO {YELLOW}{filePath}{RESET}")
+    print(f"{BLUE}OUTPUT {YELLOW}{filePath}{RESET}")
     try:
         with openFile(filePath) as file:
             expectedOutputString = readFile(file)
@@ -52,11 +52,8 @@ def unitTest(filePath, givenOutputString):
 def runBatch():
     for file in listFiles(root + "input/"):
         if file.endswith(".c"):
-            print(f"{BLUE}TESTANDO ANÁLISE LÉXICA EM {YELLOW}{file}{RESET}")
+            print(f"\n{BLUE}INPUT {YELLOW}{file}{RESET}")
             result = runProgram(file)
             if not unitTest(f"{root}output/{file.split('.')[0]}.txt", result):
-                print(f"Erro encontrado no arquivo {file}!")
                 return False
 
-
-runBatch()

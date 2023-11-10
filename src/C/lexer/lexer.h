@@ -7,7 +7,7 @@
 #include <string.h>
 #include <windows.h>
 
-#define NUM_STATES 26
+#define NUM_STATES 28
 #define ALPHABET_SIZE 20
 
 
@@ -64,6 +64,7 @@ typedef enum
     KW_RETURN,
     KW_VOID,
     KW_WHILE,
+    COMMENT,
     EOF_TOKEN
 } TokenTypeCMinus;
 
@@ -102,7 +103,9 @@ enum States
     q23,
     q24,
     q25,
-    q26
+    q26,
+    q27,
+    q28,
 };
 
 void initializeAutomaton(TabularAutomaton *automaton);

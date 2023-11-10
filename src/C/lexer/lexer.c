@@ -24,7 +24,7 @@ char *keywords[7] = {
     "while"};
 
 int keywords_index[6] = {
-    25, 26, 27, 28, 29, 30};
+    26, 27, 28, 29, 30, 31};
 
 int checkIfKeyword(char *lexeme)
 {
@@ -40,6 +40,10 @@ int checkIfKeyword(char *lexeme)
 
 TokenTypeCMinus getTokenTypeFromIndex(int index)
 {
+    if (index == 27)
+    {
+        return COMMENT;
+    }
     if (index >= 0 && index < EOF_TOKEN)
     {
         return (TokenTypeCMinus)index;
@@ -78,13 +82,15 @@ char *getTokenName(int token)
         "OPEN_BRA",
         "CLOSE_BRA",
         "SEMICOLON",
+        "COMMA",
         "KW_ELSE",
         "KW_IF",
         "KW_INT",
         "KW_RETURN",
         "KW_VOID",
         "KW_WHILE",
-        "COMMA"};
+        "COMMENT",
+    };
 
     char *tokenName;
 
@@ -389,14 +395,19 @@ void setTransitions(TabularAutomaton *automaton)
     // Automato para * e */
     setTransition(automaton, q1, '*', q14, false);
     setTransition(automaton, q14, '.', q2, true);
-    setTransition(automaton, q14, '/', q15, false);
-    setTransition(automaton, q15, '.', q2, true);
 
     // Automato para / e /*
     setTransition(automaton, q1, '/', q16, false);
     setTransition(automaton, q16, '.', q2, true);
+
+    // Automato para /* e */
+    setTransition(automaton, q1, '/', q16, false);
     setTransition(automaton, q16, '*', q17, false);
-    setTransition(automaton, q17, '.', q2, true);
+    setTransition(automaton, q17, '.', q17, true);
+    setTransition(automaton, q27, '.', q27, true);
+    setTransition(automaton, q17, '*', q27, false);
+    setTransition(automaton, q27, '/', q28, false);
+    setTransition(automaton, q28, '.', q2, true);
 
     // Automato para !=
     setTransition(automaton, q1, '!', q11, false);
@@ -547,22 +558,31 @@ LexemeInfo lexer(FILE *file)
                 strcpy(result, automaton.lexeme);
             }
             lexemeInfo.lexeme = result;
-            if(newLine) {
-                lexemeInfo.line = buffer->linha -1;
-            } else {
+            if (newLine)
+            {
+                lexemeInfo.line = buffer->linha - 1;
+            }
+            else
+            {
                 lexemeInfo.line = buffer->linha;
             }
             if (automaton.prior_state == 2)
             {
-                if(checkIfKeyword(lexemeInfo.lexeme) == -1) {
+                if (checkIfKeyword(lexemeInfo.lexeme) == -1)
+                {
                     lexemeInfo.token = 2;
-                } else {
+                }
+                else
+                {
                     lexemeInfo.token = checkIfKeyword(lexemeInfo.lexeme);
                 }
                 return lexemeInfo;
             }
             lexemeInfo.token = getTokenTypeFromIndex(automaton.prior_state);
-            return lexemeInfo;
+            if (lexemeInfo.token != 32)
+            {
+                return lexemeInfo;
+            }
         }
     }
 }
