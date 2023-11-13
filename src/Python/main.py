@@ -18,7 +18,12 @@ if __name__ == "__main__":
     compileProgram()
 
     if "-r" in sys.argv:
-        result = runProgram()
-        print(result)
+        r_index = sys.argv.index("-r")
+        if r_index + 1 < len(sys.argv):
+            name = sys.argv[r_index + 1]
+            result = runProgram(name)
+            print(result)
+        else:
+            print(f"{RED}ERRO: Nenhum arquivo de entrada foi especificado.{RESET}")
     elif "-b" in sys.argv:
         runBatch()

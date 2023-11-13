@@ -51,7 +51,7 @@ def unitTest(filePath, givenOutputString):
 
 def runBatch():
     for file in listFiles(root + "input/"):
-        if file.endswith(".c"):
+        if file.endswith(".cm"):
             print(f"\n{BLUE}INPUT {YELLOW}{file}{RESET}")
             result = runProgram(file)
             if not unitTest(f"{root}output/{file.split('.')[0]}.txt", result):

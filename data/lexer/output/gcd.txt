@@ -11,7 +11,7 @@ Line: 1, Lexeme: {, Token: OPEN_CUR
 Line: 2, Lexeme: if, Token: KW_IF
 Line: 2, Lexeme: (, Token: OPEN_PAR
 Line: 2, Lexeme: v, Token: ID
-Line: 2, Lexeme: <=, Token: LTE
+Line: 2, Lexeme: ==, Token: EQ
 Line: 2, Lexeme: 0, Token: NUM
 Line: 2, Lexeme: ), Token: CLOSE_PAR
 Line: 2, Lexeme: return, Token: KW_RETURN

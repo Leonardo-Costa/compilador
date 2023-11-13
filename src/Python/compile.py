@@ -3,7 +3,7 @@ import subprocess
 sourceRoot = "..\\C\\"
 executableName = "main"
 inputRoot = "..\\..\\data\\lexer\\input\\"
-inputFile = "teste.c"
+inputFile = "gcd.cm"
 
 RED = "\033[31m"
 GREEN = "\033[32m"
@@ -15,8 +15,10 @@ RESET = "\033[0m"
 
 
 def compileProgram(sourceRoot=sourceRoot, executableName=executableName):
+    print(f"{BLUE}COMPILANDO PROGRAMA  {YELLOW}'{executableName}.exe'{RESET}")
+
     try:
-        compile_command = f"gcc {sourceRoot}main.c {sourceRoot}funcs.c {sourceRoot}lexer/lexer.c -o {executableName}.exe"
+        compile_command = f"gcc {sourceRoot}main.c {sourceRoot}lexer/lexer.c -o {executableName}.exe"
         subprocess.run(compile_command, shell=True, check=True)
         print(
             f"{BLUE}COMPILADO COM {GREEN}SUCESSO!{BLUE} EXECUTÁVEL {YELLOW}'{executableName}.exe'{BLUE} CRIADO.{RESET}"
