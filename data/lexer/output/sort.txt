@@ -236,4 +236,4 @@ Line: 43, Lexeme: +, Token: SUM
 Line: 43, Lexeme: 1, Token: NUM
 Line: 43, Lexeme: ;, Token: SEMICOLON
 Line: 44, Lexeme: }, Token: CLOSE_CUR
-Line: 45, Lexeme: EOF, Token: EOF
+Line: 45, Lexeme: }, Token: CLOSE_CUR

@@ -217,7 +217,7 @@ char getLocalCharacter(char character) {
 }
 
 bool processInput(TabularAutomaton *automaton, const char character,
-                  bool keepState) {
+                  bool keepState, bool processAgain) {
   automaton->last_character = character;
   char local_character = getLocalCharacter(character);
   int char_index = returnCharIndex(local_character);
@@ -232,14 +232,19 @@ bool processInput(TabularAutomaton *automaton, const char character,
       automaton->current_state = next_state;
     }
 
+    // printf("Current state: %d, character: %c\n", automaton->current_state,
+    // character);
     if (isAcceptingState(automaton)) {
+      // printf("lexeme found: %s\n", automaton->read_string);
       strncpy(automaton->lexeme, automaton->read_string,
               strlen(automaton->read_string) + 1);
       automaton->lexeme[strlen(automaton->read_string)] = '\0';
       clearReadString(automaton);
       int tokenType = automaton->prior_state;
       automaton->current_state = automaton->initial_state;
-      processInput(automaton, automaton->last_character, false);
+      if (processAgain) {
+        processInput(automaton, automaton->last_character, false, true);
+      }
       return tokenType;
     } else if (next_state == -1) {
       printf("Error, character: %c\n", character);
@@ -411,7 +416,10 @@ void configureAutomaton(TabularAutomaton *automaton, Buffer **buffer,
 LexemeInfo lexer(FILE *file) {
   static TabularAutomaton automaton;
   static int is_initialized = 0;
+  static bool endOfFile = false;
+  char character;
   bool lexemeFound;
+  bool newLine;
   LexemeInfo lexemeInfo;
   Buffer *buffer;
 
@@ -421,23 +429,34 @@ LexemeInfo lexer(FILE *file) {
   }
 
   while (!lexemeFound) {
-    char character = get_next_char(file, buffer);
-    bool newLine = false;
+    character = get_next_char(file, buffer);
+    newLine = false;
 
-    if (character == EOF) {
-      lexemeInfo.lexeme = "EOF";
-      lexemeInfo.line = buffer->linha;
-      lexemeInfo.token = 1;
-      return lexemeInfo;
-    }
     if (character == '\n') {
       buffer->linha++;
       newLine = true;
     }
 
-    bool lexemeFound = processInput(&automaton, character, true);
+    if (character == EOF) {
+      if (!endOfFile) {
+        endOfFile = true;
+      } else {
+        lexemeInfo.lexeme = "EOF";
+        lexemeInfo.line = buffer->linha;
+        lexemeInfo.token = 1;
+        return lexemeInfo;
+      }
+      lexemeFound = processInput(&automaton, ' ', true, false);
+    } else {
+      lexemeFound = processInput(&automaton, character, true, true);
+    }
 
     if (lexemeFound) {
+      //   printf("lexeme found: %s, token: %d\n", automaton.lexeme,
+      //  getTokenTypeFromIndex(automaton.prior_state));
+      if (getTokenTypeFromIndex(automaton.prior_state) == 32) {
+        lexemeFound = processInput(&automaton, character, true, true);
+      }
       char *result = (char *)malloc(strlen(automaton.lexeme) + 1);
       if (result) {
         strcpy(result, automaton.lexeme);
@@ -457,7 +476,7 @@ LexemeInfo lexer(FILE *file) {
         return lexemeInfo;
       }
       lexemeInfo.token = getTokenTypeFromIndex(automaton.prior_state);
-      if (lexemeInfo.token != 32) {
+      if (lexemeInfo.token != NA) {
         return lexemeInfo;
       }
     }

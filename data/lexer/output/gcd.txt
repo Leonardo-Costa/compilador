@@ -67,4 +67,4 @@ Line: 12, Lexeme: y, Token: ID
 Line: 12, Lexeme: ), Token: CLOSE_PAR
 Line: 12, Lexeme: ), Token: CLOSE_PAR
 Line: 12, Lexeme: ;, Token: SEMICOLON
-Line: 13, Lexeme: EOF, Token: EOF
+Line: 13, Lexeme: }, Token: CLOSE_CUR
