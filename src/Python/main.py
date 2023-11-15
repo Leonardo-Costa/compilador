@@ -1,9 +1,7 @@
 import sys
-import os
 
 from compile import compileProgram, runProgram
-from funcs import listFiles
-from unit_tests import runBatch
+from unit_tests import runBatch, runUnitTest
 
 RED = '\033[31m'
 GREEN = '\033[32m'
@@ -16,7 +14,7 @@ inputRoot = "..\\..\\data\\lexer\\input\\"
 
 if __name__ == "__main__":
     compileProgram()
-
+    runUnitTest()
     if "-r" in sys.argv:
         r_index = sys.argv.index("-r")
         if r_index + 1 < len(sys.argv):

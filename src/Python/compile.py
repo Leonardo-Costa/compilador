@@ -18,7 +18,7 @@ def compileProgram(sourceRoot=sourceRoot, executableName=executableName):
     print(f"{BLUE}COMPILANDO PROGRAMA  {YELLOW}'{executableName}.exe'{RESET}")
 
     try:
-        compile_command = f"gcc {sourceRoot}main.c {sourceRoot}lexer/lexer.c -o {executableName}.exe"
+        compile_command = f"gcc {sourceRoot}main.c {sourceRoot}lexer/lexer.c -o {executableName}.exe -finput-charset=UTF-8"
         subprocess.run(compile_command, shell=True, check=True)
         print(
             f"{BLUE}COMPILADO COM {GREEN}SUCESSO!{BLUE} EXECUTÁVEL {YELLOW}'{executableName}.exe'{BLUE} CRIADO.{RESET}"

@@ -6,6 +6,7 @@
 #include <stdlib.h>
 #include <string.h>
 #include <windows.h>
+#include <locale.h>
 
 #define NUM_STATES 28
 #define ALPHABET_SIZE 20
@@ -113,8 +114,8 @@ int isLetter(char character);
 bool isStandartSpecialCharacter(char character);
 bool isNumber(char character);
 char *joinCharAndString(const char *str, char character);
-bool processInput(TabularAutomaton *automaton, const char character,
-                  bool keepState, bool processAgain);
+// bool processInput(TabularAutomaton *automaton, Buffer *buffer, const char character,
+                  // bool keepState, bool processAgain);
 void setTransitions(TabularAutomaton *automaton);
 void configureAutomaton(TabularAutomaton *automaton, Buffer **buffer,
                         FILE *file);
@@ -124,5 +125,8 @@ Buffer *allocate_buffer(int size);
 void deallocate_buffer(Buffer *buffer);
 void fill_buffer(FILE *file, Buffer *buffer);
 char *getTokenName(int token);
+int checkIfKeyword(char *lexeme);
+TokenTypeCMinus getTokenTypeFromIndex(int index);
+char getLocalCharacter(char character);
 
 #endif /* LEXER_H */

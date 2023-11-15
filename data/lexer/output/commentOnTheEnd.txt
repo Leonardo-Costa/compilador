@@ -1,0 +1,12 @@
+Line: 1, Lexeme: void, Token: KW_VOID
+Line: 1, Lexeme: main, Token: ID
+Line: 1, Lexeme: (, Token: OPEN_PAR
+Line: 1, Lexeme: ), Token: CLOSE_PAR
+Line: 1, Lexeme: {, Token: OPEN_CUR
+Line: 2, Lexeme: int, Token: KW_INT
+Line: 2, Lexeme: x, Token: ID
+Line: 2, Lexeme: ;, Token: SEMICOLON
+Line: 3, Lexeme: return, Token: KW_RETURN
+Line: 3, Lexeme: 0, Token: NUM
+Line: 3, Lexeme: ;, Token: SEMICOLON
+Line: 4, Lexeme: }, Token: CLOSE_CUR

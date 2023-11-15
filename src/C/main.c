@@ -1,6 +1,7 @@
 #include "funcs.h"
 
 int main(int argc, char *argv[]) {
+  setlocale(LC_ALL,"");
   const char *fileName = argv[1];
 
   if (argc != 2) {

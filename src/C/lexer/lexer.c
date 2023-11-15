@@ -49,39 +49,9 @@ TokenTypeCMinus getTokenTypeFromIndex(int index) {
 
 char *getTokenName(int token) {
   static char *tokenNames[] = {
-      "NA",
-      "EOF",
-      "ID",
-      "NUM",
-      "LT",
-      "LTE",
-      "GT",
-      "GTE",
-      "ATTR",
-      "EQ",
-      "NA3",
-      "NE",
-      "SUM",
-      "MULT",
-      "COMMENT_END",
-      "DIV",
-      "COMMENT_START",
-      "SUB",
-      "OPEN_PAR",
-      "CLOSE_PAR",
-      "OPEN_CUR",
-      "CLOSE_CUR",
-      "OPEN_BRA",
-      "CLOSE_BRA",
-      "SEMICOLON",
-      "COMMA",
-      "KW_ELSE",
-      "KW_IF",
-      "KW_INT",
-      "KW_RETURN",
-      "KW_VOID",
-      "KW_WHILE",
-      "COMMENT",
+      "NA",       "EOF",       "ID",        "NUM",         "LT",      "LTE",           "GT",     "GTE",       "ATTR",      "EQ",       "NA3",
+      "NE",       "SUM",       "MULT",      "COMMENT_END", "DIV",     "COMMENT_START", "SUB",    "OPEN_PAR",  "CLOSE_PAR", "OPEN_CUR", "CLOSE_CUR",
+      "OPEN_BRA", "CLOSE_BRA", "SEMICOLON", "COMMA",       "KW_ELSE", "KW_IF",         "KW_INT", "KW_RETURN", "KW_VOID",   "KW_WHILE", "COMMENT",
   };
 
   char *tokenName;
@@ -143,10 +113,10 @@ int returnCharIndex(char character) {
     return 19;
   if (character == '\t')
     return 20;
+  return -1;
 }
 
-void setTransition(TabularAutomaton *automaton, int state, char character,
-                   int next_state, bool inverse) {
+void setTransition(TabularAutomaton *automaton, int state, char character, int next_state, bool inverse) {
   int char_index = returnCharIndex(character);
   if (inverse) {
     for (int i = 0; i < ALPHABET_SIZE; i++) {
@@ -160,13 +130,9 @@ void setTransition(TabularAutomaton *automaton, int state, char character,
   }
 }
 
-void setFinalState(TabularAutomaton *automaton, int finalState) {
-  automaton->final_state = finalState;
-}
+void setFinalState(TabularAutomaton *automaton, int finalState) { automaton->final_state = finalState; }
 
-int isAcceptingState(TabularAutomaton *automaton) {
-  return automaton->current_state == automaton->final_state;
-}
+int isAcceptingState(TabularAutomaton *automaton) { return automaton->current_state == automaton->final_state; }
 
 void clearReadString(TabularAutomaton *automaton) {
   for (int i = 0; i < sizeof(automaton->read_string); i++) {
@@ -174,23 +140,16 @@ void clearReadString(TabularAutomaton *automaton) {
   }
 }
 
-int isLetter(char character) {
-  return (character >= 'a' && character <= 'z') ||
-         (character >= 'A' && character <= 'Z');
-}
+int isLetter(char character) { return (character >= 'a' && character <= 'z') || (character >= 'A' && character <= 'Z'); }
 
 bool isStandartSpecialCharacter(char character) {
-  return (character == '+' || character == '-' || character == ',' ||
-          character == ';' || character == '(' || character == ')' ||
-          character == '{' || character == '}' || character == '[' ||
-          character == ']');
+  return (character == '+' || character == '-' || character == ',' || character == ';' || character == '(' || character == ')' || character == '{' ||
+          character == '}' || character == '[' || character == ']');
 }
 
 bool isNumber(char character) {
-  return (character == '0' || character == '1' || character == '2' ||
-          character == '3' || character == '4' || character == '5' ||
-          character == '6' || character == '7' || character == '8' ||
-          character == '9');
+  return (character == '0' || character == '1' || character == '2' || character == '3' || character == '4' || character == '5' || character == '6' ||
+          character == '7' || character == '8' || character == '9');
 }
 
 char *joinCharAndString(const char *str, char character) {
@@ -216,15 +175,20 @@ char getLocalCharacter(char character) {
   }
 }
 
-bool processInput(TabularAutomaton *automaton, const char character,
-                  bool keepState, bool processAgain) {
+bool processInput(TabularAutomaton *automaton, Buffer *buffer, const char character, bool keepState, bool processAgain) {
+
+  bool errorFound = false;
+  if (character == EOF) {
+    return false;
+  }
   automaton->last_character = character;
   char local_character = getLocalCharacter(character);
   int char_index = returnCharIndex(local_character);
-
-  if (char_index >= 0 && char_index < ALPHABET_SIZE) {
-    int next_state =
-        automaton->transition_table[automaton->current_state][char_index];
+  if (char_index < 0 || char_index >= ALPHABET_SIZE) {
+    printf("ERRO LEXICO: %c LINHA: %d\n", character, buffer->linha);
+    return false;
+  } else {
+    int next_state = automaton->transition_table[automaton->current_state][char_index];
     if (next_state != -1) {
       if (keepState) {
         automaton->prior_state = automaton->current_state;
@@ -232,36 +196,32 @@ bool processInput(TabularAutomaton *automaton, const char character,
       automaton->current_state = next_state;
     }
 
-    // printf("Current state: %d, character: %c\n", automaton->current_state,
-    // character);
     if (isAcceptingState(automaton)) {
-      // printf("lexeme found: %s\n", automaton->read_string);
-      strncpy(automaton->lexeme, automaton->read_string,
-              strlen(automaton->read_string) + 1);
+      strncpy(automaton->lexeme, automaton->read_string, strlen(automaton->read_string) + 1);
       automaton->lexeme[strlen(automaton->read_string)] = '\0';
       clearReadString(automaton);
       int tokenType = automaton->prior_state;
       automaton->current_state = automaton->initial_state;
       if (processAgain) {
-        processInput(automaton, automaton->last_character, false, true);
+        processInput(automaton, buffer, automaton->last_character, false, true);
       }
       return tokenType;
     } else if (next_state == -1) {
-      printf("Error, character: %c\n", character);
+      errorFound = true;
+      sprintf(automaton->read_string, "%s%c", automaton->read_string, character);
+      printf("ERRO LEXICO %s LINHA %d\n", automaton->read_string, buffer->linha);
+      clearReadString(automaton);
+      automaton->current_state = 0;
       return false;
     } else {
       if (character != ' ' && character != '\n') {
-        char *new_read_string =
-            joinCharAndString(automaton->read_string, character);
+        char *new_read_string = joinCharAndString(automaton->read_string, character);
         if (new_read_string) {
           strcpy(automaton->read_string, new_read_string);
           free(new_read_string);
         }
       }
     }
-  } else {
-    printf("Invalid character in input: %c\n", character);
-    return false;
   }
   return false;
 }
@@ -399,8 +359,7 @@ void deallocate_buffer(Buffer *buffer) {
   }
 }
 
-void configureAutomaton(TabularAutomaton *automaton, Buffer **buffer,
-                        FILE *file) {
+void configureAutomaton(TabularAutomaton *automaton, Buffer **buffer, FILE *file) {
   *buffer = allocate_buffer(256);
   if (*buffer == NULL) {
     printf("Erro ao alocar o buffer.\n");
@@ -428,7 +387,7 @@ LexemeInfo lexer(FILE *file) {
     is_initialized = 1;
   }
 
-  while (!lexemeFound) {
+  while (1) {
     character = get_next_char(file, buffer);
     newLine = false;
 
@@ -446,16 +405,14 @@ LexemeInfo lexer(FILE *file) {
         lexemeInfo.token = 1;
         return lexemeInfo;
       }
-      lexemeFound = processInput(&automaton, ' ', true, false);
+      lexemeFound = processInput(&automaton, buffer, ' ', true, false);
     } else {
-      lexemeFound = processInput(&automaton, character, true, true);
+      lexemeFound = processInput(&automaton, buffer, character, true, true);
     }
 
     if (lexemeFound) {
-      //   printf("lexeme found: %s, token: %d\n", automaton.lexeme,
-      //  getTokenTypeFromIndex(automaton.prior_state));
       if (getTokenTypeFromIndex(automaton.prior_state) == 32) {
-        lexemeFound = processInput(&automaton, character, true, true);
+        lexemeFound = processInput(&automaton, buffer, character, true, true);
       }
       char *result = (char *)malloc(strlen(automaton.lexeme) + 1);
       if (result) {
@@ -476,7 +433,7 @@ LexemeInfo lexer(FILE *file) {
         return lexemeInfo;
       }
       lexemeInfo.token = getTokenTypeFromIndex(automaton.prior_state);
-      if (lexemeInfo.token != NA) {
+      if (lexemeInfo.token != NA && lexemeInfo.token != 32) {
         return lexemeInfo;
       }
     }

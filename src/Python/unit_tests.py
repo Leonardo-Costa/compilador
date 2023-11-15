@@ -1,4 +1,5 @@
 import os
+import subprocess
 from funcs import openFile, readFile, listFiles, printLine
 from compile import runProgram
 
@@ -50,10 +51,41 @@ def unitTest(filePath, givenOutputString):
 
 
 def runBatch():
+    print(f"{BLUE}INICIANDO TESTES DO LEXER NOS ARQUIVOS DE INPUT{RESET}")
     for file in listFiles(root + "input/"):
         if file.endswith(".cm"):
             print(f"\n{BLUE}INPUT {YELLOW}{file}{RESET}")
             result = runProgram(file)
             if not unitTest(f"{root}output/{file.split('.')[0]}.txt", result):
                 return False
+    print(f"{BLUE}TESTES DO LEXER NOS ARQUIVOS DE INPUT CONCLUÍDOS COM {GREEN} SUCESSO{RESET}")
+    
 
+
+def runUnitTest():
+    print(f"{BLUE}INICIANDO TESTES UNITARIOS PARA O ARQUIVO {YELLOW}lexer.c{RESET}")
+    compile_command = [
+        "gcc",
+        "../C/lexer/test_lexer.c",
+        "../C/lexer/lexer.c",
+        "-o",
+        "test_lexer",
+    ]
+    compile_process = subprocess.run(
+        compile_command, stdout=subprocess.PIPE, stderr=subprocess.PIPE
+    )
+    if compile_process.returncode != 0:
+        print("Compilation failed with the following output:")
+        print(compile_process.stderr.decode())
+        return
+
+    test_command = ["./test_lexer"]
+    test_process = subprocess.run(
+        test_command
+    )
+
+    if test_process.returncode == 0:
+        print(f"{BLUE}TESTES UNITARIOS PARA O ARQUIVO {YELLOW}lexer.c{BLUE} CONCLUÍDOS COM {GREEN}SUCESSO!{RESET}")
+    else:
+        print(f"{RED}ERRO {BLUE}TESTES UNITARIOS PARA O ARQUIVO {YELLOW}lexer.c{BLUE} NÃO FORAM CONCLUÍDOS{RESET}")
+        print(test_process.stderr.decode())

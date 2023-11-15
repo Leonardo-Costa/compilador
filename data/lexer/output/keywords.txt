@@ -1,0 +1,6 @@
+Line: 1, Lexeme: if, Token: KW_IF
+Line: 2, Lexeme: else, Token: KW_ELSE
+Line: 3, Lexeme: void, Token: KW_VOID
+Line: 4, Lexeme: return, Token: KW_RETURN
+Line: 5, Lexeme: while, Token: KW_WHILE
+Line: 6, Lexeme: int, Token: KW_INT
